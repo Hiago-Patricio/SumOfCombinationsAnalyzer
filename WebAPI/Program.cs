@@ -21,14 +21,14 @@ app.UseHttpsRedirection();
 
 app.MapGet("/combinations", () =>
 {
-    var range = Enumerable.Range(1, 3).Select(x => (float)x).ToList();
+    var range = Enumerable.Range(1, 3).Select(x => (double)x).ToList();
 
     var combinations = GenerateCombinations(range);
 
     return combinations;
 });
 
-app.MapPost("/combinations", (List<float> values) =>
+app.MapPost("/combinations", (List<double> values) =>
 {
     // Generate combinations based on the received values
     var combinations = GenerateCombinations(values);
@@ -40,24 +40,25 @@ app.MapPost("/combinations", (List<float> values) =>
 
 app.Run();
 
-List<Combination> GenerateCombinations (IList<float>? values)
+List<Combination> GenerateCombinations (IList<double>? values)
 {
     var result = new List<Combination>();
 
     for (int i = 1; i <= values?.Count; i++)
     {
-        var combinations = new Combinations<float>(values, i, GenerateOption.WithoutRepetition);
+        var combinations = new Combinations<double>(values, i, GenerateOption.WithoutRepetition);
     
         foreach (var combination in combinations)
         {
-            result.Add(new Combination((List<float>)combination));
+            result.Add(new Combination((List<double>)combination));
         }
     }
     
-    return result;
+    return result.OrderByDescending(x => x.Sum).ToList();
 }
 
-record Combination(List<float> Values)
+record Combination(List<double> Values)
 {
-    public float Sum => Values.Sum();
+    public double Sum =>  Values.Sum();
+    public string SumInReal =>  Sum.ToString("N2");
 }
